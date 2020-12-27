@@ -14,17 +14,23 @@ def make(cache_size, seed):
     def xor(a, b):
         return a ^ b
 
+    def init():
+        # Sequentially produce the initial dataset
+        last = sha3_512(seed)
+        yield last
+        for _ in range(1, n):
+            last = sha3_512(last)
+            yield last
+
     n = cache_size // HASH_BYTES
 
-    # Sequentially produce the initial dataset
-    o = [sha3_512(seed)]
-    for i in range(1, n):
-        o.append(sha3_512(o[-1]))
+    cache = list(init())
 
     # Use a low-round version of randmemohash
     for _ in range(CACHE_ROUNDS):
         for i in range(n):
-            v = o[i][0] % n
-            o[i] = sha3_512(list(map(xor, o[(i - 1 + n) % n], o[v])))
+            u = (i - 1 + n) % n
+            v = cache[i][0] % n
+            cache[i] = sha3_512(list(map(xor, cache[u], cache[v])))
 
-    return o
+    return cache

@@ -15,11 +15,11 @@ cache_ = common.deserialize('cache')
 
 
 def calc_hash():
-    # INPUT
+    # INPUT-------------------------------------------------------------------------------------------------------------
     block_number = 0
     header = b'header'
     nonce = b'nonce'
-    # END INPUT
+    # END INPUT---------------------------------------------------------------------------------------------------------
     res = hashimoto.hashimoto_light(block_number, cache_, header, nonce)
     print('bytes:         ', res)
     print('bytes (digit): ', list(res))
@@ -35,6 +35,7 @@ def run_all_tests(sequence: bytes):
         print(f'frequency_block_test_{block_sz}', nist_tests.frequency_block_test(sequence, length, block_sz))
     print('runs_test', nist_tests.runs_test(sequence, length))
     print('longest_run_of_ones', nist_tests.longest_run_of_ones(sequence, length))
+    print('dft_spectral', nist_tests.dft_spectral(sequence, length))
 
 
 def calc_hash_and_run_all_tests():
@@ -70,3 +71,8 @@ def longest_run_of_ones_example():
     length = 128
     s = binary_str_to_bytes(s)
     print(nist_tests.longest_run_of_ones(s, length))
+
+
+def dft_spectral_example():
+    s = get_test_seq()
+    print(nist_tests.dft_spectral(s, 100))

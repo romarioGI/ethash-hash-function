@@ -4,6 +4,7 @@
 """
 from math import erfc
 
+import numpy
 from scipy.special import gammainc
 
 
@@ -135,6 +136,43 @@ def longest_run_of_ones(sequence: bytes, length: int):
     for i in range(K + 1):
         khi_obs_sqr += (v[i] - N * pi[i]) ** 2 / (N * pi[i])
     p_val = 1 - gammainc(K / 2, khi_obs_sqr / 2)
+    return {
+        'p_val': p_val,
+        'is rnd': p_val >= 0.01
+    }
+
+
+def dft_spectral(sequence: bytes, length: int):
+    """
+    https://gist.github.com/StuartGordonReid/54845bf66de7e195b335#file-spectral-py
+    """
+    N = len(sequence) * 8
+    if length > N:
+        raise Exception
+    N = length
+    plus_minus_one = []
+    cnt = 0
+    for b in sequence:
+        for i in range(8):
+            if cnt >= N:
+                continue
+            if b & (1 << i) != 0:
+                plus_minus_one.append(1)
+            else:
+                plus_minus_one.append(-1)
+            cnt += 1
+    # plus_minus_one.reverse()
+    # Product discrete fourier transform of plus minus one
+    s = numpy.fft.fft(plus_minus_one)
+    modulus = numpy.abs(s[0:N // 2])
+    tau = numpy.sqrt(numpy.log(1 / 0.05) * N)
+    # Theoretical number of peaks
+    count_n0 = 0.95 * (N / 2)
+    # Count the number of actual peaks m > T
+    count_n1 = len(numpy.where(modulus < tau)[0])
+    # Calculate d and return the p value statistic
+    d = (count_n1 - count_n0) / numpy.sqrt(N * 0.95 * 0.05 / 4)
+    p_val = erfc(abs(d) / numpy.sqrt(2))
     return {
         'p_val': p_val,
         'is rnd': p_val >= 0.01

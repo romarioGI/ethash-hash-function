@@ -95,3 +95,47 @@ def runs_test(sequence: bytes, length: int):
         'p_val': p_val,
         'is rnd': p_val >= 0.01
     }
+
+
+def longest_run_of_ones(sequence: bytes, length: int):
+    """
+    тест серий
+    """
+    block_size = 8
+    N = len(sequence) * 8
+    if length > N:
+        raise Exception
+    N = length // block_size
+    max_one = [0] * N
+    cnt = 0
+    cur_ones = 0
+    for b in sequence:
+        for i in range(8):
+            if cnt >= N * block_size:
+                continue
+            if cnt % block_size == 0:
+                cur_ones = 0
+            if b & (1 << i) != 0:
+                cur_ones += 1
+            else:
+                cur_ones = 0
+            max_one[cnt // block_size] = max(max_one[cnt // block_size], cur_ones)
+            cnt += 1
+    v = [0] * 4
+    for o in max_one:
+        if o <= 1:
+            v[0] += 1
+        elif o >= 4:
+            v[3] += 1
+        else:
+            v[o - 1] += 1
+    khi_obs_sqr = 0
+    K = 3
+    pi = [0.2148, 0.3672, 0.2305, 0.1875]
+    for i in range(K + 1):
+        khi_obs_sqr += (v[i] - N * pi[i]) ** 2 / (N * pi[i])
+    p_val = 1 - gammainc(K / 2, khi_obs_sqr / 2)
+    return {
+        'p_val': p_val,
+        'is rnd': p_val >= 0.01
+    }

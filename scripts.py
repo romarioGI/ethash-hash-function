@@ -34,6 +34,7 @@ def run_all_tests(sequence: bytes):
     for block_sz in range(1, 17, 3):
         print(f'frequency_block_test_{block_sz}', nist_tests.frequency_block_test(sequence, length, block_sz))
     print('runs_test', nist_tests.runs_test(sequence, length))
+    print('longest_run_of_ones', nist_tests.longest_run_of_ones(sequence, length))
 
 
 def calc_hash_and_run_all_tests():
@@ -60,3 +61,12 @@ def frequency_block_test_example():
 
 def runs_test_example():
     print(nist_tests.runs_test(get_test_seq(), 100))
+
+
+def longest_run_of_ones_example():
+    s = ['11001100', '00010101', '01101100', '01001100', '11100000', '00000010', '01001101', '01010001', '00010011',
+         '11010110', '10000000', '11010111', '11001100', '11100110', '11011000', '10110010']
+    s = ''.join(s)
+    length = 128
+    s = binary_str_to_bytes(s)
+    print(nist_tests.longest_run_of_ones(s, length))

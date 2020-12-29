@@ -10,29 +10,21 @@ def get_size(block_number):
     return common_get_size(block_number, CACHE_BYTES_INIT, CACHE_BYTES_GROWTH, HASH_BYTES)
 
 
-def make(cache_size, seed: bytes):
-    def init():
-        # Sequentially produce the initial dataset
-        last = sha3_512(seed)
-        yield last
-        for _ in range(1, n):
-            last = sha3_512(last)
-            yield last
-
-    def algo_round():
-        def xor(a, b):
-            return a ^ b
-
-        # Use a low-round version of rand-memo-hash
-        for i in range(n):
-            u = (i - 1 + n) % n
-            v = (u + (int.from_bytes(cache[u], 'little') % (n - 1))) % n
-            cache[i] = sha3_512(bytes(map(xor, cache[u], cache[v])))
+def make(cache_size, seed):
+    def xor(a, b):
+        return a ^ b
 
     n = cache_size // HASH_BYTES
-    cache = list(init())
 
+    # Sequentially produce the initial dataset
+    o = [sha3_512(seed)]
+    for i in range(1, n):
+        o.append(sha3_512(o[-1]))
+
+    # Use a low-round version of rand-memo-hash
     for _ in range(CACHE_ROUNDS):
-        algo_round()
+        for i in range(n):
+            v = o[i][0] % n
+            o[i] = sha3_512(list(map(xor, o[(i - 1 + n) % n], o[v])))
 
-    return cache
+    return o

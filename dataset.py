@@ -16,8 +16,8 @@ def calc_dataset_item(cache, i):
     mix = sha3_512(mix)
     # fnv it with a lot of random cache nodes based on i
     for j in range(DATASET_PARENTS):
-        cache_index = fnv(i ^ j, mix[j % r])
-        mix = list(map(fnv, mix, cache[cache_index % n]))
+        cache_index = fnv(i ^ j, mix[j % r]) % n
+        mix = list(map(fnv, mix, cache[cache_index]))
     return sha3_512(mix)
 
 

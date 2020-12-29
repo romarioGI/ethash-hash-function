@@ -1,5 +1,5 @@
 import hashlib
-import json
+import pickle
 
 EPOCH_LENGTH = 30000  # blocks per epoch
 HASH_BYTES = 64  # hash length in bytes
@@ -20,12 +20,11 @@ def fnv_arr(arr):
     return fnv_hash
 
 
+# из-за неточности вычисления корня, большие полные квадраты могу быть восприняты как простые числа
 def is_prime(x):
-    i = 2
-    while i * i <= x:
+    for i in range(2, int(x ** 0.5)):
         if x % i == 0:
             return False
-        i += 1
     return True
 
 
@@ -45,6 +44,9 @@ def sha3_512(x):
     return hash_words(lambda v: hashlib.sha3_512(v).digest(), x)
 
 
+# получается лишнее перекладывание информации: list[int] ~> bytes ~> list[int]
+# а всё потому, что не сделали отдельную структуру, которая поддерживает операции над целыми числами,
+# но при этом компактно хранится в виде массива байтов
 def hash_words(h, x):
     if isinstance(x, list):
         x = list_to_bytes(x)
@@ -57,6 +59,8 @@ def list_to_bytes(hl: list) -> bytes:
     def rz_pad(s, length: int):
         return s + bytes(max(0, length - len(s)))
 
+    # в исходнике это encode_int -- крайне не читаемый метод
+    # эта функция эквивалентна функции из описания
     def int_to_bytes(num: int) -> bytes:
         bs = []
         while num > 0:
@@ -64,15 +68,13 @@ def list_to_bytes(hl: list) -> bytes:
             num >>= 8
         return bytes(bs)
 
-    res = [rz_pad(int_to_bytes(x), WORD_BYTES) for x in hl]
-
-    return b"".join(res)
+    return b''.join(map(lambda x: rz_pad(int_to_bytes(x), WORD_BYTES), hl))
 
 
 def bytes_to_list(hb: bytes) -> list:
     def bytes_to_int(bs: bytes) -> int:
         num = 0
-        for b in bs:
+        for b in reversed(bs):
             num = (num << 8) | int(b)
         return num
 
@@ -80,10 +82,10 @@ def bytes_to_list(hb: bytes) -> list:
 
 
 def serialize(data, file_name):
-    with open(file_name, "w") as write_file:
-        json.dump(data, write_file)
+    with open(file_name, 'wb') as write_file:
+        pickle.dump(data, write_file)
 
 
 def deserialize(file_name):
-    with open(file_name, "r") as read_file:
-        return json.load(read_file)
+    with open(file_name, 'rb') as read_file:
+        return pickle.load(read_file)

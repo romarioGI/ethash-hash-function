@@ -4,7 +4,7 @@ from dataset import calc_dataset_item, get_size as dataset_get_size
 ACCESSES = 64  # number of accesses in hashimoto loop
 
 
-def hashimoto(header, nonce, full_size, dataset_lookup):
+def hashimoto(header: bytes, nonce: bytes, full_size, dataset_lookup):
     n = full_size // HASH_BYTES
     w = MIX_BYTES // WORD_BYTES
     mix_hashes = MIX_BYTES // HASH_BYTES

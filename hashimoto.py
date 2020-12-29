@@ -24,10 +24,7 @@ def hashimoto(header, nonce, full_size, dataset_lookup):
     compress_mix = []
     for i in range(0, len(mix), WORD_BYTES):
         compress_mix.append(fnv_arr(mix[i:i + WORD_BYTES]))
-    return {
-        "mix digest": list_to_bytes(compress_mix),
-        "result": list_to_bytes(sha3_256(seed + compress_mix))
-    }
+    return list_to_bytes(sha3_256(seed + compress_mix))
 
 
 def hashimoto_light(block_number, cache, header, nonce):

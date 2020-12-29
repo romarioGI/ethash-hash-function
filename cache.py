@@ -21,7 +21,7 @@ def make(cache_size, seed):
     for i in range(1, n):
         o.append(sha3_512(o[-1]))
 
-    # Use a low-round version of randmemohash
+    # Use a low-round version of rand-memo-hash
     for _ in range(CACHE_ROUNDS):
         for i in range(n):
             v = o[i][0] % n

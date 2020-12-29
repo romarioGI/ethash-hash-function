@@ -64,4 +64,34 @@ def frequency_block_test(sequence: bytes, length: int, block_size: int):
 def runs_test(sequence: bytes, length: int):
     """
     тест "дырок"
+    а в спецификации NIST очепятка: неправильно посчитан тау в примере
     """
+    N = len(sequence) * 8
+    if length > N:
+        raise Exception
+    N = length
+    pi = 0
+    cnt = 0
+    last = -1
+    v_obs = 0
+    for b in sequence:
+        for i in range(8):
+            if cnt >= N:
+                continue
+            cur_bit = b & (1 << i) != 0
+            if cur_bit:
+                pi += 1
+            if cur_bit != last:
+                v_obs += 1
+            last = cur_bit
+            cnt += 1
+    pi /= N
+    tau = 2 / (N ** 0.5)
+    if abs(pi - 0.5) >= tau:
+        p_val = 0
+    else:
+        p_val = erfc(abs(v_obs - 2 * N * pi * (1 - pi)) / (2 * (2 * N) ** 0.5 * pi * (1 - pi)))
+    return {
+        'p_val': p_val,
+        'is rnd': p_val >= 0.01
+    }

@@ -37,46 +37,12 @@ def get_size(block_number, bytes_init, bytes_growth, bytes_):
     return sz
 
 
-def sha3_256(x):
-    return hash_words(lambda v: hashlib.sha3_256(v).digest(), x)
+def sha3_256(x: bytes) -> bytes:
+    return hashlib.sha3_256(x).digest()
 
 
-def sha3_512(x):
-    return hash_words(lambda v: hashlib.sha3_512(v).digest(), x)
-
-
-def hash_words(h, x):
-    if isinstance(x, list):
-        x = list_to_bytes(x)
-    y = h(x)
-    return bytes_to_list(y)
-
-
-def list_to_bytes(hl: list) -> bytes:
-    # right zero padding
-    def rz_pad(s, length: int):
-        return s + bytes(max(0, length - len(s)))
-
-    def int_to_bytes(num: int) -> bytes:
-        bs = []
-        while num > 0:
-            bs.append(num & 255)
-            num >>= 8
-        return bytes(bs)
-
-    res = [rz_pad(int_to_bytes(x), WORD_BYTES) for x in hl]
-
-    return b"".join(res)
-
-
-def bytes_to_list(hb: bytes) -> list:
-    def bytes_to_int(bs: bytes) -> int:
-        num = 0
-        for b in bs:
-            num = (num << 8) | int(b)
-        return num
-
-    return [bytes_to_int(hb[i:i + WORD_BYTES]) for i in range(0, len(hb), WORD_BYTES)]
+def sha3_512(x: bytes) -> bytes:
+    return hashlib.sha3_512(x).digest()
 
 
 def serialize(data, file_name):

@@ -22,7 +22,8 @@ def calc_dataset_item(cache, i):
 
 
 def calc_dataset(full_size, cache):
-    return [calc_dataset_item(cache, i) for i in range(full_size // HASH_BYTES)]
+    for i in range(full_size // HASH_BYTES):
+        yield calc_dataset_item(cache, i)
 
 
 def get_size(block_number):

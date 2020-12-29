@@ -1,4 +1,6 @@
-pass
+import cache
+import common
+import time
 
 '''block_number = 0
 seed = bytes(32)
@@ -12,3 +14,12 @@ sz = dataset.get_size(0)
 d = dataset.calc_dataset(sz, cache)
 
 common.serialize(d, f"dataset_0_cache_0_32.json")'''
+
+start_time = time.time()
+
+block_number = 0
+seed = bytes(32)
+cache_size = cache.get_size(block_number)
+c = cache.make(cache_size, seed)
+
+print(time.time() - start_time)
